@@ -14,23 +14,38 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+# add image store (edgeStore)
+https://edgestore.dev/docs/quick-start
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [] create api/edgestore/[...edgestore]/route.ts
+**************************************************************
+import { initEdgeStore } from "@edgestore/server";
+import { createEdgeStoreNextHandler } from "@edgestore/server/adapters/next/app";
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+const es = initEdgeStore.create();
 
-## Learn More
+const edgeStoreRouter = es.router({
+  myPublicImages: es.imageBucket(),
+});
 
-To learn more about Next.js, take a look at the following resources:
+const handler = createEdgeStoreNextHandler({
+    router: edgeStoreRouter,
+});
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+export {handler as GET, handler as POST};
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+export type EdgeStoreRouter = typeof edgeStoreRouter
+**************************************************************
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [] create /lib/edge-store.ts
+**************************************************************
+"use client";
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+import { type EdgeStoreRouter } from "@/app/api/edgestore/[...edgestore]/route";
+import { createEdgeStoreProvider } from "@edgestore/react";
+
+export const { EdgeStoreProvider, useEdgeStore } =
+  createEdgeStoreProvider<EdgeStoreRouter>();
+
+**************************************************************
